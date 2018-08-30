@@ -25,7 +25,8 @@ func loadConifg(path string)(configs []config.ConfigType) {
 			configs = append(configs, config.ConfigType{
 				Filename: strs[0],
 				Url: strs[1],
-				LastOne: strs[2],
+				Lasturl: strs[2],
+				Lastname: strs[3],
 			})
 		}
 	}
@@ -39,13 +40,11 @@ func updateConfig(path string, configs []config.ConfigType) {
 		var str string
 		for i := 0; i < len(configs); i++ {
 			conf := configs[i]
+			str += conf.Filename + "," + conf.Url + "," + conf.Lasturl + "," + conf.Lastname
 			if i < len(configs) - 1 {
-				str += conf.Filename + "," + conf.Url + "," + conf.LastOne + "\n"
-			} else {
-				str += conf.Filename + "," + conf.Url + "," + conf.LastOne
+				str += "\n"
 			}
 		}
-		println("config.ini :", str)
 		file.WriteString(str)
 	} else {
 		println("更新配置文件出错，", err.Error())
@@ -57,10 +56,11 @@ func main() {
 	dl := downloader.NewDownloader()
 	for i := 0; i < len(configs); i++ {
 		conf := &configs[i]
-		fmt.Println("name:", conf.Filename, "last one:", conf.LastOne)
-		lastOne := dl.StartWithConfig(conf)
-		if lastOne != "" {
-			conf.LastOne = lastOne
+		fmt.Println("开始下载:", conf.Filename, "上次最新章节:", conf.Lastname, " ......")
+		lastUrl, lastName := dl.StartWithConfig(conf)
+		if lastUrl != "" {
+			conf.Lasturl = lastUrl
+			conf.Lastname = lastName
 			updateConfig("config.ini", configs)
 		}
 	}

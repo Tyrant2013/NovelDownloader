@@ -4,6 +4,7 @@ type (
 	ConfigType struct {
 		Filename string
 		Url string
-		LastOne string
+		Lasturl string
+		Lastname string
 	}
 )

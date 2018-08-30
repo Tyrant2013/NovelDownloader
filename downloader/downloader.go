@@ -20,18 +20,18 @@ type (
 
 func NewDownloader() (ins *Downloader) {
 	ins = &Downloader{
-
+		
 	}
 	return
 }
 
-func (_this Downloader)StartWithConfig(conf *config.ConfigType) (lastDownloadUrl string) {
+func (_this Downloader)StartWithConfig(conf *config.ConfigType) (lastDownloadUrl, lastChapterName string) {
 	chapters := findAllChaptersFromUrl(conf.Url)
-	validChapters := filterValidChapters(chapters, conf.LastOne)
+	validChapters := filterValidChapters(chapters, conf.Lasturl)
 	if len(validChapters) <= 0 {
 		fmt.Println(conf.Filename + "没有更新")
 	} else {
-		lastDownloadUrl = downloadAllValidChapters(validChapters, *conf)
+		lastDownloadUrl, lastChapterName = downloadAllValidChapters(validChapters, *conf)
 	}
 	return
 }
@@ -79,15 +79,17 @@ func reverse(chapters []Chapter) []Chapter {
 	return chapters
 }
 
-func downloadAllValidChapters(chapters []Chapter, conf config.ConfigType) (lastDownload string) {
+func downloadAllValidChapters(chapters []Chapter, conf config.ConfigType) (lastDownload, lastName string) {
 	for _, chap := range chapters {
 		fmt.Printf("下载：%s ......", chap.name)
 		content := downloadChapterContent(conf, chap.url)
 		if content == "" {
 			return
 		}
-		saveToFile(chap.name, content, conf.Filename)
+		saveToFile(chap.name, content, conf.Filename + ".txt")
 		lastDownload = chap.url
+		lastName = chap.name
+		fmt.Println("完成。")
 	}
 	return
 }
