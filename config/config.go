@@ -6,5 +6,6 @@ type (
 		Url string
 		Lasturl string
 		Lastname string
+		End bool
 	}
 )
