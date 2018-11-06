@@ -26,7 +26,7 @@ func NewDownloader() (ins *Downloader) {
 }
 
 func (_this Downloader)StartWithConfig(conf *config.ConfigType) (lastDownloadUrl, lastChapterName string) {
-	chapters := findAllChaptersFromUrl(conf.Url)
+	chapters := findAllChaptersFromUrl(conf.Url, conf.ListReg)
 	validChapters := filterValidChapters(chapters, conf.Lasturl)
 	if len(validChapters) <= 0 {
 		fmt.Println(conf.Filename + "没有更新")
@@ -36,12 +36,13 @@ func (_this Downloader)StartWithConfig(conf *config.ConfigType) (lastDownloadUrl
 	return
 }
 
-func findAllChaptersFromUrl(url string)(chapters []Chapter) {
+func findAllChaptersFromUrl(url, listReg string)(chapters []Chapter) {
 	doc, err := goquery.NewDocument(url)
 	if err != nil {
 		fmt.Println("Fatal error: ", err.Error())
 	}
-	doc.Find("div.listmain").Each(func(index int, s *goquery.Selection) {
+	// "div.listmain"
+	doc.Find(listReg).Each(func(index int, s *goquery.Selection) {
 		s.Find("a").Each(func(i int, s *goquery.Selection) {
 			src, finded := s.Attr("href")
 			name := s.Text()
@@ -98,7 +99,8 @@ func downloadChapterContent(conf config.ConfigType, chapterUrl string)(content s
 	uri := conf.Url + chapterUrl
 	doc, err := goquery.NewDocument(uri)
 	if err == nil {
-		content = strings.Replace(doc.Find("#content").Text(), "请记住本书首发域名：wwww.4xiaoshuo.com。4小说网手机版阅读网址：m.4xiaoshuo.com", "", -1)
+		// "#content"
+		content = strings.Replace(doc.Find(conf.ContentReg).Text(), "请记住本书首发域名：wwww.4xiaoshuo.com。4小说网手机版阅读网址：m.4xiaoshuo.com", "", -1)
 	} else {
 		fmt.Println("error:", err.Error())
 	}
